@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>الروابط التساهمية — مختبر واقع افتراضي</title>
+  <meta name="description" content="تجربة واقع افتراضي تعليمية تفاعلية عن الروابط التساهمية لـ Meta Quest 3 عبر WebXR" />
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="app"></div>
+
+  <!-- الصفحة الافتتاحية -->
+  <section id="menu" aria-label="الصفحة الافتتاحية">
+    <div class="card">
+      <div class="brand">
+        <img class="brand-logo" src="assets/brand/alamad-logo-light.png" alt="الأمد" />
+        <span class="badge">VR · WebXR · Meta Quest 3</span>
+        <h1>الروابط التساهمية</h1>
+        <p class="en">COVALENT BONDS</p>
+      </div>
+      <p class="lead">مختبر كيمياء افتراضي تتجول فيه، وتلتقط الذرات بيديك، وتبني الجزيئات وتفكّها، وتجري التجارب، ثم تحصل على تقرير بدرجاتك. خمس مراحل في نحو 11 دقيقة.</p>
+      <ol class="stages">
+        <li>التهيئة</li><li>الفرضية</li><li>التجربة</li><li>الاستنتاج</li><li>الاختبار الختامي</li>
+      </ol>
+      <div id="loading" class="status">جارٍ تحميل المختبر…</div>
+      <div class="actions">
+        <button id="btn-start" class="primary">ابدأ التجربة</button>
+        <button id="btn-vr" class="vr" style="display:none">🥽 الدخول إلى الواقع الافتراضي</button>
+        <button id="btn-desktop">🖥️ وضع المعاينة على الكمبيوتر</button>
+        <button data-sound class="ghost">🔊 الصوت يعمل</button>
+      </div>
+      <div id="xr-status" class="status">جارٍ التحقق من دعم الواقع الافتراضي…</div>
+      <div id="last-result" class="last" style="display:none"></div>
+      <details class="controls">
+        <summary>تعليمات التحكم</summary>
+        <div class="cols">
+          <div>
+            <h3>Meta Quest 3</h3>
+            <ul>
+              <li><kbd>الزناد Trigger</kbd> تحديد · ضغط الأزرار · التقاط من بعيد بالشعاع</li>
+              <li><kbd>المقبض Grip</kbd> إمساك مباشر للأجسام القريبة (أو بالشعاع)</li>
+              <li><kbd>العصا اليسرى</kbd> المشي في المختبر</li>
+              <li><kbd>العصا اليمنى للأمام</kbd> قوس الانتقال الفوري، اتركها للانتقال</li>
+              <li><kbd>العصا اليمنى يمين/يسار</kbd> دوران 30°</li>
+              <li><kbd>العصا أثناء الإمساك</kbd> تقريب/إبعاد الجسم وتدويره</li>
+              <li><kbd>B / Y</kbd> إفلات الجسم أو إعادة الأداة · إلغاء</li>
+              <li><kbd>A</kbd> العودة إلى محطة المهمة · <kbd>X</kbd> قائمة المعصم</li>
+              <li>يمكن لمس الأزرار مباشرة بطرف وحدة التحكم</li>
+            </ul>
+          </div>
+          <div>
+            <h3>وضع المعاينة (لوحة المفاتيح والفأرة)</h3>
+            <ul>
+              <li><kbd>W A S D</kbd> المشي · <kbd>Shift</kbd> أسرع · <kbd>نقر مزدوج على الأرض</kbd> المشي إلى تلك النقطة</li>
+              <li><kbd>PageDown</kbd> المشهد التالي · <kbd>PageUp</kbd> المشهد السابق (وضع المراجعة)</li>
+              <li><kbd>زر الفأرة الأيمن + سحب</kbd> أو <kbd>الأسهم</kbd> النظر</li>
+              <li><kbd>نقرة يسرى</kbd> ضغط زر / التقاط أداة · <kbd>سحب</kbd> تحريك جسم</li>
+              <li><kbd>عجلة الفأرة</kbd> رفع/خفض الجسم الممسوك (يُسحب أفقيًا فوق الطاولة)</li>
+              <li><kbd>Q / E</kbd> تدوير أفقي · <kbd>R / F</kbd> تدوير رأسي</li>
+              <li><kbd>Esc</kbd> إفلات / إعادة الأداة · <kbd>T</kbd> محطة المهمة · <kbd>M</kbd> الصوت</li>
+            </ul>
+          </div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- شريط التقدم في وضع المعاينة -->
+  <div id="hud" aria-live="polite">
+    <div class="row"><span id="hud-stage">المرحلة 1 من 5</span><span id="hud-title"></span><button id="hud-min" title="تصغير / توسيع">▾</button></div>
+    <div class="bar"><div id="hud-bar"></div></div>
+    <div id="hud-task"></div>
+    <div id="hud-tool" class="tool"></div>
+    <div class="row btns nav" id="hud-nav">
+      <button id="hud-prev">⟶ السابق</button>
+      <button id="hud-next" class="primary-sm">التالي ⟵</button>
+      <span class="hint">وضع المراجعة</span>
+    </div>
+    <div class="walk-hint">🚶 امشِ: <kbd>W A S D</kbd> · انظر: <kbd>زر الفأرة الأيمن</kbd> أو الأسهم</div>
+    <div class="row btns">
+      <button id="hud-station">📍 محطة المهمة (T)</button>
+      <button data-sound>🔊 الصوت يعمل</button>
+      <button id="hud-help">؟ التحكم</button>
+      <button id="hud-vr" class="vr" style="display:none">🥽 VR</button>
+    </div>
+  </div>
+  <div id="help">
+    <button id="help-close">✕</button>
+    <h3>التحكم في وضع المعاينة</h3>
+    <ul>
+      <li>W A S D للمشي، الأسهم أو سحب بالزر الأيمن للنظر</li>
+      <li>نقرة على زر لتفعيله. اضغط على جسم واسحبه لتحريكه، ثم أفلت</li>
+      <li>انقر على أداة (عصا/زنبرك/كماشة) لالتقاطها؛ Esc لإعادتها</li>
+      <li>لربط ذرتين: أمسك أداة الربط، اسحب ذرة إلى جوار أخرى حتى يظهر خط أخضر ثم أفلت</li>
+      <li>لإضافة وصلة: الزنبرك في يدك + انقر على الرابطة. للفك: الكماشة + انقر على الرابطة أو الذرة</li>
+      <li>السحب يحرّك الجسم أفقيًا فوق الطاولة · العجلة: رفع/خفض · Q/E و R/F: تدوير</li>
+    </ul>
+  </div>
+  <div id="subtitle"></div>
+  <div id="toast"></div>
+  <div id="crosshair"></div>
+  <div id="fps"></div>
+
+  <noscript>هذه التجربة تتطلب تفعيل JavaScript.</noscript>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
